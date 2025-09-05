@@ -1,8 +1,9 @@
+import useAuthStore from '@/auth.store';
+import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import './globals.css';
-import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
   dsn: 'https://9a8235704e57dad0b2231d903fc12bb8@o4509969212375040.ingest.de.sentry.io/4509969221025872',
@@ -14,13 +15,18 @@ Sentry.init({
   // Configure Session Replay
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
-  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+  integrations: [
+    Sentry.mobileReplayIntegration(),
+    Sentry.feedbackIntegration(),
+  ],
 
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 });
 
 export default Sentry.wrap(function RootLayout() {
+  const { isLoading, fetchAuthenticatedUser } = useAuthStore();
+
   const [fontsLoaded, error] = useFonts({
     'QuickSand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
     'QuickSand-Medium': require('../assets/fonts/Quicksand-Medium.ttf'),
@@ -28,11 +34,18 @@ export default Sentry.wrap(function RootLayout() {
     'QuickSand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf'),
     'QuickSand-Light': require('../assets/fonts/Quicksand-Light.ttf'),
   });
+
   useEffect(() => {
     if (error) throw error;
 
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
+
+  useEffect(() => {
+    fetchAuthenticatedUser();
+  }, []);
+
+  if (!fontsLoaded || isLoading) return null;
 
   return <Stack screenOptions={{ headerShown: false }} />;
 });
