@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import useAuthStore from '@/auth.store';
+import useAuthStore from '@/store/auth.store';
 import '../globals.css';
 
 export default function Index() {
